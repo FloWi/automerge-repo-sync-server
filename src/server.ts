@@ -2,7 +2,7 @@
 import fs from "fs"
 import express from "express"
 import { WebSocketServer } from "ws"
-import { Repo } from "@automerge/automerge-repo"
+import { NetworkAdapterInterface, PeerId, Repo, RepoConfig } from "@automerge/automerge-repo"
 import { NodeWSServerAdapter } from "@automerge/automerge-repo-network-websocket"
 import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs"
 import os from "os"
@@ -15,7 +15,7 @@ export class Server {
   #server
 
   /** @type {((value: any) => void)[]} */
-  #readyResolvers = []
+  #readyResolvers: ((value: any) => void)[] = []
 
   #isReady = false
 
@@ -38,11 +38,11 @@ export class Server {
     const app = express()
     app.use(express.static("public"))
 
-    const config = {
+    const config: RepoConfig = {
       network: [new NodeWSServerAdapter(this.#socket)],
       storage: new NodeFSStorageAdapter(dir),
       /** @ts-ignore @type {(import("@automerge/automerge-repo").PeerId)}  */
-      peerId: `storage-server-${hostname}`,
+      peerId: `storage-server-${hostname}` as PeerId,
       // Since this is a server, we don't share generously — meaning we only sync documents they already
       // know about and can ask for by ID.
       sharePolicy: async () => false,
