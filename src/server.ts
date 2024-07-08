@@ -8,19 +8,15 @@ import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs"
 import os from "os"
 
 export class Server {
-  /** @type WebSocketServer */
-  #socket
+  #socket: WebSocketServer
 
-  /** @type ReturnType<import("express").Express["listen"]> */
-  #server
+  #server: ReturnType<import("express").Express["listen"]>
 
-  /** @type {((value: any) => void)[]} */
   #readyResolvers: ((value: any) => void)[] = []
 
   #isReady = false
 
-  /** @type Repo */
-  #repo
+  #repo: Repo
 
   constructor() {
     const dir =
@@ -41,7 +37,6 @@ export class Server {
     const config: RepoConfig = {
       network: [new NodeWSServerAdapter(this.#socket)],
       storage: new NodeFSStorageAdapter(dir),
-      /** @ts-ignore @type {(import("@automerge/automerge-repo").PeerId)}  */
       peerId: `storage-server-${hostname}` as PeerId,
       // Since this is a server, we don't share generously — meaning we only sync documents they already
       // know about and can ask for by ID.
